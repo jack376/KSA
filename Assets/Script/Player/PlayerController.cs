@@ -2,29 +2,32 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 10f;
-    public float rotationSpeed = 90f;
-
     public KeyCode upButton    = KeyCode.W;
-    public KeyCode downButton  = KeyCode.S;
     public KeyCode leftButton  = KeyCode.A;
+    public KeyCode downButton  = KeyCode.S;
     public KeyCode rightButton = KeyCode.D;
 
     public KeyCode attackButton = KeyCode.Space;
-    public KeyCode hitButton = KeyCode.C;
-    public KeyCode KnockdownButton = KeyCode.V;
 
-    private float prevMoveSpeed;
-    private float prevRotationSpeed;
+    public KeyCode hitButton = KeyCode.C; // Test Code
+    public KeyCode knockdownButton = KeyCode.V; // Test Code
 
-    private float knockdownTime = 1.5f;
-    private float getupTime = 2f;
-    private float flowTime = 0f;
+    public float moveSpeed = 10f;
+    public float rotateSpeed = 90f;
+
+    public float knockdownTime = 1.5f;
+    public float getupTime = 2f;
 
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
 
-    public bool IsKnockdown { get; set; } = false;
+    private float flowTime;
+
+    private float prevMoveSpeed;
+    private float prevRotateSpeed;
+
+    private bool isKnockdown = false;
+    private bool isGetup = false;
 
     private void Start()
     {
@@ -32,14 +35,16 @@ public class PlayerController : MonoBehaviour
         playerAnimator = GetComponent<Animator>();
 
         prevMoveSpeed = moveSpeed;
-        prevRotationSpeed = rotationSpeed;
+        prevRotateSpeed = rotateSpeed;
     }
 
     private void FixedUpdate()
     {
+        flowTime += Time.fixedDeltaTime;
+
         float horizontal = Input.GetKey(rightButton) ? 1f : Input.GetKey(leftButton) ? -1f : 0f;
         float vertical   = Input.GetKey(upButton)    ? 1f : Input.GetKey(downButton) ? -1f : 0f;
-
+                
         var inputVector  = new Vector3(horizontal, 0, vertical).normalized;
         var moveVelocity = inputVector * moveSpeed;
 
@@ -48,35 +53,37 @@ public class PlayerController : MonoBehaviour
         if (inputVector != Vector3.zero)
         {
             var targetRotation = Quaternion.LookRotation(inputVector);
-            playerRigidbody.rotation = Quaternion.Slerp(playerRigidbody.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
+            playerRigidbody.rotation = Quaternion.Slerp(playerRigidbody.rotation, targetRotation, Time.fixedDeltaTime * rotateSpeed);
         }
 
         playerAnimator.SetFloat("MoveSpeed", inputVector.magnitude);
-    }
 
-    private void Update()
-    {
-        flowTime += Time.deltaTime;
-        if (IsKnockdown)
+        if (isKnockdown)
         {
             if (flowTime >= knockdownTime)
             {
-                IsKnockdown = false;
+                isKnockdown = false;
+                isGetup = true;
 
-                playerAnimator.SetBool("IsKnockdown", IsKnockdown);
-
-                rotationSpeed = prevRotationSpeed * 0.05f;
+                playerAnimator.SetBool("IsKnockdown", isKnockdown);
+                rotateSpeed = prevRotateSpeed * 0.05f;
             }
 
             return;
         }
 
-        if (flowTime >= getupTime)
+        if (isGetup && flowTime >= getupTime)
         {
-            rotationSpeed = prevRotationSpeed;
+            rotateSpeed = prevRotateSpeed;
             moveSpeed = prevMoveSpeed;
-            flowTime = 0f;
+
+            isGetup = false;
         }
+    }
+
+    private void Update()
+    {
+        // Test Code
 
         if (Input.GetKeyDown(attackButton))
         {
@@ -88,15 +95,15 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetTrigger("Hit");
         }
 
-        if (Input.GetKeyDown(KnockdownButton))
+        if (Input.GetKeyDown(knockdownButton))
         {
-            IsKnockdown = true;
+            isKnockdown = true;
 
             playerAnimator.SetTrigger("Knockdown");
-            playerAnimator.SetBool("IsKnockdown", IsKnockdown);
+            playerAnimator.SetBool("IsKnockdown", isKnockdown);
 
             moveSpeed = 0f;
-            rotationSpeed = 0f;
+            rotateSpeed = 0f;
             flowTime = 0f;
         }
     }
