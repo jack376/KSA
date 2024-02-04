@@ -7,10 +7,10 @@ public class PlayerController : MonoBehaviour
     public KeyCode downButton  = KeyCode.S;
     public KeyCode rightButton = KeyCode.D;
 
-    public KeyCode attackButton = KeyCode.I;
-    public KeyCode debuffButton = KeyCode.J;
-    public KeyCode shieldButton = KeyCode.K;
-    public KeyCode strikeButton = KeyCode.L;
+    public KeyCode attackButton    = KeyCode.I;
+    public KeyCode judgementButton = KeyCode.J;
+    public KeyCode debuffButton    = KeyCode.K;
+    public KeyCode shieldButton    = KeyCode.L;
 
     public float moveSpeed = 10f;
     public float rotateSpeed = 90f;
@@ -20,7 +20,10 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
+
     private BaseAttack playerAttack;
+    private DebuffSkill playerDebuff;
+
     private LivingEntity livingEntity;
 
     private float flowTime;
@@ -28,7 +31,7 @@ public class PlayerController : MonoBehaviour
     private float previousMoveSpeed;
     private float previousRotateSpeed;
 
-    private bool isAttack = true;
+    private bool isAct = true;
     private bool isKnockdown = false;
     private bool isGetup = false;
 
@@ -36,7 +39,10 @@ public class PlayerController : MonoBehaviour
     {
         playerRigidbody = GetComponent<Rigidbody>();
         playerAnimator  = GetComponent<Animator>();
+
         playerAttack    = GetComponent<BaseAttack>();
+        playerDebuff  = GetComponent<DebuffSkill>();
+
         livingEntity    = GetComponent<LivingEntity>();
 
         flowTime = 0f;
@@ -44,7 +50,7 @@ public class PlayerController : MonoBehaviour
         previousMoveSpeed = moveSpeed;
         previousRotateSpeed = rotateSpeed;
 
-        isAttack = true;
+        isAct = true;
         isKnockdown = false;
         isGetup = false;
 
@@ -102,7 +108,21 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         flowTime += Time.deltaTime;
-        OnAttack(attackButton);
+        if (flowTime >= playerAttack.cooldown && isAct)
+        {
+            if (Input.GetKey(attackButton))
+            {
+                playerAnimator.SetTrigger("Attack");
+                playerAttack.ShowBeginParticle("Stone slash", transform.position + Vector3.up * 0.75f);
+                OnActStart();
+            }
+            if (Input.GetKey(debuffButton))
+            {
+                playerAnimator.SetTrigger("Debuff");
+                playerDebuff.ShowBeginParticle("Electro slash fix", transform.position + Vector3.up * 0.75f);
+                OnActStart();
+            }
+        }
     }
 
     private void OnDeath()
@@ -121,26 +141,22 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("IsKnockdown", isKnockdown);
     }
 
-    private void OnAttack(KeyCode button)
+    private void OnActStart()
     {
-        if (Input.GetKey(button) && flowTime >= playerAttack.attackRate && isAttack)
-        {
-            playerAnimator.SetTrigger("Attack");
-            playerAttack.ShowAttackParticle("Stone slash", transform.position + Vector3.up * 0.75f);
-            
-            flowTime = 0f;
-            moveSpeed = 0f;
-            rotateSpeed = 0f;
+        previousMoveSpeed = moveSpeed;
+        previousRotateSpeed = rotateSpeed;
 
-            isAttack = false;
-        }
+        moveSpeed = 0f;
+        rotateSpeed = 0f;
+
+        isAct = false;
     }
 
-    public void OnAttackEnd()
+    public void OnActEnd()
     {
         moveSpeed = previousMoveSpeed;
         rotateSpeed = previousRotateSpeed;
 
-        isAttack = true;
+        isAct = true;
     }
 }

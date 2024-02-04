@@ -25,6 +25,16 @@ public class InputAlert : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.IsGameOver)
+        {
+            upImage.enabled    = false;
+            leftImage.enabled  = false;
+            downImage.enabled  = false;
+            rightImage.enabled = false;
+
+            return;
+        }
+
         upImage.enabled     = Input.GetKey(playerController.upButton);
         leftImage.enabled   = Input.GetKey(playerController.leftButton);
         downImage.enabled   = Input.GetKey(playerController.downButton);

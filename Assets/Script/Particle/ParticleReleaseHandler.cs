@@ -5,8 +5,13 @@ public class ParticleReleaseHandler : MonoBehaviour
 {
     public event Action OnParticleRelease;
 
-    private readonly float lifeTime = 0.75f;
+    private float lifeTime = 0.75f;
     private float flowTime = 0f;
+
+    private void OnEnable()
+    {
+        flowTime = 0f;
+    }
 
     private void Update()
     {

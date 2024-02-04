@@ -1,48 +1,26 @@
-using System;
 using UnityEngine;
 
 public class BaseAttack : MonoBehaviour
 {
     public LayerMask targetLayerMask;
 
-	public float attackDamage = 10f;
-	public float attackRate   = 1f;
-	public float attackRadius = 0.5f;
-	public float attackRange  = 2f;
+	public float damage = 10f;
+	public float cooldown = 1f;
+	public float radius = 0.5f;
+	public float range = 2f;
 
-    public void OnAttack(string particlePrefabName)
+    public void AttackActivate(string particleName)
 	{
-        var attackPosition = transform.position + transform.forward * attackRange;
-		var hitColliders = Physics.OverlapSphere(attackPosition, attackRadius, targetLayerMask);
+        var attackPosition = transform.position + transform.forward * range;
+		var hitColliders = Physics.OverlapSphere(attackPosition, radius, targetLayerMask);
 		foreach (var hitCollider in hitColliders)
 		{
 			var damageable = hitCollider.GetComponent<IDamageable>();
-			damageable?.TakeDamage(attackDamage);
-
-            ShowDamageText(hitCollider.transform.position, attackDamage);
-            ShowHitParticle(particlePrefabName, hitCollider.transform.position);
+			damageable?.TakeDamage(hitCollider.transform, damage, particleName);
         }
     }
 
-    private void ShowDamageText(Vector3 attackPosition, float attackDamage)
-    {
-        var damageTextPool = ObjectPoolManager.Instance.GetPool("DamageText");
-
-        var damageTextInstance = damageTextPool.Get();
-        damageTextInstance.transform.position = attackPosition;
-        damageTextInstance.GetComponent<DamageText>().SetText(attackDamage.ToString());
-
-        var damageText = damageTextInstance.GetComponent<DamageText>();
-        damageText.OnDamageText += ReleaseDamageText;
-
-        void ReleaseDamageText()
-        {
-            damageText.OnDamageText -= ReleaseDamageText;
-            damageTextPool.Release(damageTextInstance);
-        }
-    }
-
-    public void ShowAttackParticle(string particlePrefabName, Vector3 attackPosition)
+    public virtual void ShowBeginParticle(string particlePrefabName, Vector3 attackPosition)
     {
         var attackFxPool = ObjectPoolManager.Instance.GetPool(particlePrefabName);
 
@@ -60,28 +38,10 @@ public class BaseAttack : MonoBehaviour
         }
     }
 
-    private void ShowHitParticle(string particlePrefabName, Vector3 hitPosition)
-    {
-        var hitFxPool = ObjectPoolManager.Instance.GetPool(particlePrefabName);
-
-        var hitFxInstance = hitFxPool.Get();
-        hitFxInstance.transform.position = hitPosition + Vector3.up * 0.75f;
-        hitFxInstance.transform.rotation = Quaternion.identity;
-
-        var hitParticle = hitFxInstance.GetComponent<ParticleReleaseHandler>();
-        hitParticle.OnParticleRelease += ReleaseHitParticle;
-
-        void ReleaseHitParticle()
-        {
-            hitParticle.OnParticleRelease -= ReleaseHitParticle;
-            hitFxPool.Release(hitFxInstance);
-        }
-    }
-
     private void OnDrawGizmosSelected()
     {
         // Test Code
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.forward * attackRange, attackRadius);
+        Gizmos.DrawWireSphere(transform.position + transform.forward * range, radius);
     }
 }

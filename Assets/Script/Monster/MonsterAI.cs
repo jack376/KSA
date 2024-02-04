@@ -81,15 +81,6 @@ public class MonsterAI : MonoBehaviour
         monsterAnimator.SetFloat("MoveSpeed", pathFinder.speed);
     }
 
-    private void Update()
-    {
-        // Test Code
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            OnDeath();
-        }
-    }
-
     private void Idle(float distance)
 	{
         moveSpeed = 0f;
