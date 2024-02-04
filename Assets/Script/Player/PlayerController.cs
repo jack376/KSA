@@ -9,9 +9,6 @@ public class PlayerController : MonoBehaviour
 
     public KeyCode attackButton = KeyCode.Space;
 
-    public KeyCode hitButton = KeyCode.C; // Test Code
-    public KeyCode knockdownButton = KeyCode.V; // Test Code
-
     public float moveSpeed = 10f;
     public float rotateSpeed = 90f;
 
@@ -20,11 +17,13 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
+    private BaseAttack playerAttack;
+    private LivingEntity playerLivingEntity;
 
     private float flowTime;
 
-    private float prevMoveSpeed;
-    private float prevRotateSpeed;
+    private float previousMoveSpeed;
+    private float previousRotateSpeed;
 
     private bool isKnockdown = false;
     private bool isGetup = false;
@@ -33,9 +32,20 @@ public class PlayerController : MonoBehaviour
     {
         playerRigidbody = GetComponent<Rigidbody>();
         playerAnimator = GetComponent<Animator>();
+        playerAttack = GetComponent<BaseAttack>();
+        playerLivingEntity = GetComponent<LivingEntity>();
 
-        prevMoveSpeed = moveSpeed;
-        prevRotateSpeed = rotateSpeed;
+        playerLivingEntity.OnHit += () => playerAnimator.SetTrigger("Hit");
+
+        flowTime = 0f;
+
+        previousMoveSpeed = moveSpeed;
+        previousRotateSpeed = rotateSpeed;
+    }
+
+    private void OnDestroy()
+    {
+        playerLivingEntity.OnHit -= () => playerAnimator.SetTrigger("Hit");
     }
 
     private void FixedUpdate()
@@ -66,7 +76,7 @@ public class PlayerController : MonoBehaviour
                 isGetup = true;
 
                 playerAnimator.SetBool("IsKnockdown", isKnockdown);
-                rotateSpeed = prevRotateSpeed * 0.05f;
+                rotateSpeed = previousRotateSpeed * 0.05f;
             }
 
             return;
@@ -74,8 +84,8 @@ public class PlayerController : MonoBehaviour
 
         if (isGetup && flowTime >= getupTime)
         {
-            rotateSpeed = prevRotateSpeed;
-            moveSpeed = prevMoveSpeed;
+            rotateSpeed = previousRotateSpeed;
+            moveSpeed = previousMoveSpeed;
 
             isGetup = false;
         }
@@ -88,14 +98,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(attackButton))
         {
             playerAnimator.SetTrigger("Attack");
+            playerAttack.Attack();
         }
 
-        if (Input.GetKeyDown(hitButton))
-        {
-            playerAnimator.SetTrigger("Hit");
-        }
-
-        if (Input.GetKeyDown(knockdownButton))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             isKnockdown = true;
 

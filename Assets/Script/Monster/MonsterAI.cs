@@ -24,22 +24,27 @@ public class MonsterAI : MonoBehaviour
 
     private Animator monsterAnimator;
     private Vector3 nextPatrolPosition;
+    private BaseAttack monsterAttack;
 
     private float flowTime;
     private float moveSpeed;
 	private float runSpeed;
-    private float prevMoveSpeed;
+    private float previousMoveSpeed;
+
 	private bool isDie = false;
 
     private void Start()
 	{
 		pathFinder = GetComponent<NavMeshAgent>();
 		monsterAnimator = GetComponent<Animator>();
+        monsterAttack = GetComponent<BaseAttack>();
+
+        flowTime = 0f;
 
 		currentState = State.Idle;
 
         moveSpeed = pathFinder.speed;
-        prevMoveSpeed = pathFinder.speed;
+        previousMoveSpeed = pathFinder.speed;
 
         runSpeed = pathFinder.speed * runSpeedRate;
     }
@@ -51,21 +56,11 @@ public class MonsterAI : MonoBehaviour
         var distance = Vector3.Distance(playerRef.transform.position, transform.position);
         switch (currentState)
 		{
-			case State.Idle: 
-				Idle(distance); 
-				break;
-			case State.Patrol: 
-				Patrol(distance); 
-				break;
-			case State.Chase: 
-				Chase(distance); 
-				break;
-			case State.Attack: 
-				Attack(distance);
-				break;
-			case State.Death: 
-				Death(); 
-				break;
+			case State.Idle  : Idle(distance);   break;
+			case State.Patrol: Patrol(distance); break;
+			case State.Chase : Chase(distance);  break;
+			case State.Attack: Attack(distance); break;
+			case State.Death : Death(); break;
 		}
 
         if (isDie)
@@ -86,16 +81,6 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        // Test Code
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
-    }
-
     private void Idle(float distance)
 	{
         moveSpeed = 0f;
@@ -114,7 +99,7 @@ public class MonsterAI : MonoBehaviour
 
     private void Patrol(float distance)
     {
-        moveSpeed = prevMoveSpeed;
+        moveSpeed = previousMoveSpeed;
         pathFinder.isStopped = false;
 
         if (distance <= chaseDistance)
@@ -170,7 +155,8 @@ public class MonsterAI : MonoBehaviour
         if (flowTime >= attackCooldown)
 		{
             monsterAnimator.SetTrigger("Attack");
-            
+            monsterAttack.Attack();
+
             currentState = State.Chase;
 			flowTime = 0f;
         }
@@ -211,5 +197,15 @@ public class MonsterAI : MonoBehaviour
         }
 
         pathFinder.SetDestination(nextPatrolPosition);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Test Code
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackDistance);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, chaseDistance);
     }
 }
