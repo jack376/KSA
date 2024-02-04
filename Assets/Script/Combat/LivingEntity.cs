@@ -3,29 +3,34 @@ using UnityEngine;
 
 public class LivingEntity : MonoBehaviour, IDamageable
 {
-    public event Action OnHit;
     public event Action OnDeath;
 
-    public float Health { get; protected set; } = 100f;
-    public bool Dead { get; protected set; }
+    public HpSlider hpSlider;
+
+    public int maxHealth = 100;
+
+    public float Health { get; protected set; }
+    public bool  Dead   { get; protected set; }
 
     protected virtual void OnEnable()
     {
         Dead = false;
+        Health = maxHealth;
+        hpSlider?.UpdateHP(Health / maxHealth);
     }
 
     public virtual void TakeDamage(float damage)
     {
         Health -= damage;
-        OnHit?.Invoke();
+        hpSlider?.UpdateHP(Health / maxHealth);
 
         if (Health <= 0 && !Dead)
         {
-            Die();
+            Death();
         }
     }
 
-    public virtual void Die()
+    public virtual void Death()
     {
         OnDeath?.Invoke();
         Dead = true;

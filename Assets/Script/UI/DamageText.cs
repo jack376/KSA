@@ -9,8 +9,8 @@ public class DamageText : MonoBehaviour
 
     public float moveSpeed = 2f;
     public float fadeSpeed = 0.5f;
+    public float lifeTime = 0.3f;
 
-    private float lifeTime = 0.5f;
     private float flowTime;
 
     private void Start()

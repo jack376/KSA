@@ -1,18 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	public LivingEntity playerEntity;
+	public LivingEntity monsterEntity;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+	private void Start()
+	{
+		if (playerEntity != null)
+		{
+			playerEntity.OnDeath += OnPlayerDeath;
+		}
+		if (monsterEntity != null)
+		{
+			monsterEntity.OnDeath += OnMonsterDeath;
+		}
+	}
+
+	private void OnPlayerDeath()
+	{
+		GameOver();
+	}
+
+	private void OnMonsterDeath()
+	{
+		Win();
+	}
+
+	private void GameOver()
+	{
+		Debug.Log("Game Over!");
+	}
+
+	private void Win()
+	{
+		Debug.Log("You Win!");
+	}
+
+	private void OnDestroy()
+	{
+		if (playerEntity != null)
+		{
+			playerEntity.OnDeath -= OnPlayerDeath;
+			playerEntity = null;
+		}
+
+		if (monsterEntity != null)
+		{
+			monsterEntity.OnDeath -= OnMonsterDeath;
+			monsterEntity = null;
+		}
+	}
 }

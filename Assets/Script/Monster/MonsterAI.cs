@@ -6,6 +6,7 @@ public class MonsterAI : MonoBehaviour
 	public enum State { Idle, Patrol, Chase, Attack, Death, }
 
 	public State currentState;
+
 	public NavMeshAgent pathFinder;
 	public GameObject playerRef;
 
@@ -23,8 +24,9 @@ public class MonsterAI : MonoBehaviour
     public float lerpAcceleration = 4f;
 
     private Animator monsterAnimator;
+    private LivingEntity livingEntity;
+
     private Vector3 nextPatrolPosition;
-    private BaseAttack monsterAttack;
 
     private float flowTime;
     private float moveSpeed;
@@ -37,7 +39,7 @@ public class MonsterAI : MonoBehaviour
 	{
 		pathFinder = GetComponent<NavMeshAgent>();
 		monsterAnimator = GetComponent<Animator>();
-        monsterAttack = GetComponent<BaseAttack>();
+        livingEntity = GetComponent<LivingEntity>();
 
         flowTime = 0f;
 
@@ -47,9 +49,16 @@ public class MonsterAI : MonoBehaviour
         previousMoveSpeed = pathFinder.speed;
 
         runSpeed = pathFinder.speed * runSpeedRate;
+
+        livingEntity.OnDeath += OnDeath;
     }
 
-	private void FixedUpdate()
+    private void OnDestroy()
+    {
+        livingEntity.OnDeath -= OnDeath;
+    }
+    
+    private void FixedUpdate()
 	{
         flowTime += Time.fixedDeltaTime;
 
@@ -77,7 +86,7 @@ public class MonsterAI : MonoBehaviour
         // Test Code
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            OnDie();
+            OnDeath();
         }
     }
 
@@ -175,7 +184,7 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
-    public void OnDie()
+    public void OnDeath()
     {
         currentState = State.Death;
     }
