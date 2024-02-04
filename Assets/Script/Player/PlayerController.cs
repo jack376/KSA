@@ -35,17 +35,10 @@ public class PlayerController : MonoBehaviour
         playerAttack = GetComponent<BaseAttack>();
         playerLivingEntity = GetComponent<LivingEntity>();
 
-        playerLivingEntity.OnHit += () => playerAnimator.SetTrigger("Hit");
-
         flowTime = 0f;
 
         previousMoveSpeed = moveSpeed;
         previousRotateSpeed = rotateSpeed;
-    }
-
-    private void OnDestroy()
-    {
-        playerLivingEntity.OnHit -= () => playerAnimator.SetTrigger("Hit");
     }
 
     private void FixedUpdate()
@@ -94,11 +87,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // Test Code
-
-        if (Input.GetKeyDown(attackButton))
+        flowTime += Time.deltaTime;
+        if (Input.GetKey(attackButton) && flowTime >= playerAttack.attackRate)
         {
             playerAnimator.SetTrigger("Attack");
-            playerAttack.Attack();
+            playerAttack.ShowAttackParticle("Stone slash", transform.position + Vector3.up * 0.75f);
+            flowTime = 0f;
         }
 
         if (Input.GetKeyDown(KeyCode.X))

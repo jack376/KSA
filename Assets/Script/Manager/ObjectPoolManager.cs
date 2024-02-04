@@ -31,7 +31,6 @@ public class ObjectPoolManager : MonoBehaviour
         foreach (var prefab in prefabs)
         {
             CreatePool(prefab.name, prefab, initialSize);
-            Debug.Log($"Create Pool: {prefab.name}");
         }
     }
 

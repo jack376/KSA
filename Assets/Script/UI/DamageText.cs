@@ -5,6 +5,7 @@ using UnityEngine;
 public class DamageText : MonoBehaviour
 {
     public event Action OnDamageText;
+    public TextMeshPro textMeshPro;
 
     public float moveSpeed = 2f;
     public float fadeSpeed = 0.5f;
@@ -12,19 +13,15 @@ public class DamageText : MonoBehaviour
     private float lifeTime = 0.5f;
     private float flowTime;
 
-    private TextMeshPro textMeshPro;
-    private Color initialColor;
-
-    private void Awake()
+    private void Start()
     {
-        textMeshPro = GetComponentInChildren<TextMeshPro>();
-        initialColor = textMeshPro.color;
+        textMeshPro = GetComponent<TextMeshPro>();
     }
 
     private void OnEnable()
     {
         flowTime = 0f;
-        textMeshPro.color = initialColor;
+        textMeshPro.color = Color.white;
     }
 
     private void Update()
@@ -46,5 +43,10 @@ public class DamageText : MonoBehaviour
                 OnDamageText = null;
             }
         }
+    }
+
+    public void SetText(string text)
+    {
+        textMeshPro.text = text;
     }
 }

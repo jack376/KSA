@@ -155,8 +155,6 @@ public class MonsterAI : MonoBehaviour
         if (flowTime >= attackCooldown)
 		{
             monsterAnimator.SetTrigger("Attack");
-            monsterAttack.Attack();
-
             currentState = State.Chase;
 			flowTime = 0f;
         }
