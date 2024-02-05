@@ -5,16 +5,16 @@ using UnityEngine;
 public class LivingEntity : MonoBehaviour, IDamageable
 {
     public event Action OnDeath;
-
     public HpSlider hpSlider;
 
     public int maxHealth = 100;
-
-    public float Health { get; protected set; }
-    public bool  Dead   { get; protected set; }
+    public float defense = 0f;
 
     private Coroutine dotDamageCoroutine;
     private float flowTime;
+
+    public float Health { get; protected set; }
+    public bool Dead { get; protected set; }
 
     protected virtual void OnEnable()
     {
@@ -30,7 +30,7 @@ public class LivingEntity : MonoBehaviour, IDamageable
 
     public virtual void TakeDamage(Transform transform, float damage, string particleName)
     {
-        Health -= damage;
+        Health -= Mathf.Max(damage - defense, 0);
         hpSlider?.UpdateHP(Health / maxHealth);
 
         var damageTextPool = ObjectPoolManager.Instance.GetPool("DamageText");

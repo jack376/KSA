@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
 
     private BaseAttack playerAttack;
     private DebuffSkill playerDebuff;
+    private JudgementSkill playerJudgement;
+    private ShieldSkill playerShield;
 
     private LivingEntity livingEntity;
 
@@ -41,9 +43,11 @@ public class PlayerController : MonoBehaviour
         playerAnimator  = GetComponent<Animator>();
 
         playerAttack    = GetComponent<BaseAttack>();
-        playerDebuff  = GetComponent<DebuffSkill>();
+        playerDebuff    = GetComponent<DebuffSkill>();
+        playerJudgement = GetComponent<JudgementSkill>();
+        playerShield    = GetComponent<ShieldSkill>();
 
-        livingEntity    = GetComponent<LivingEntity>();
+        livingEntity = GetComponent<LivingEntity>();
 
         flowTime = 0f;
 
@@ -120,6 +124,18 @@ public class PlayerController : MonoBehaviour
             {
                 playerAnimator.SetTrigger("Debuff");
                 playerDebuff.ShowBeginParticle("Electro slash fix", transform.position + Vector3.up * 0.75f);
+                OnActStart();
+            }
+            if (Input.GetKey(judgementButton))
+            {
+                playerAnimator.SetTrigger("Judgement");
+                playerJudgement.ShowBeginParticle("AoE slash orange", transform.position + Vector3.up * 0.75f);
+                isAct = false;
+            }
+            if (Input.GetKey(shieldButton))
+            {
+                playerAnimator.SetTrigger("Shield");
+                playerShield.ShowBeginParticle("Magic shield blue", transform.position + Vector3.up * 0.75f);
                 OnActStart();
             }
         }

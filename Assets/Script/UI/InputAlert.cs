@@ -10,34 +10,45 @@ public class InputAlert : MonoBehaviour
     public Image downImage;
     public Image rightImage;
 
-    public Image attackImage;
-    public Image debuffImage;
-    public Image shieldImage;
-    public Image strikeImage;
+    public GameObject attackImage;
+    public GameObject debuffImage;
+    public GameObject shieldImage;
+    public GameObject judgementImage;
 
     private void Start()
     {
-        upImage.enabled    = false;
-        leftImage.enabled  = false;
-        downImage.enabled  = false;
-        rightImage.enabled = false;
+        SetActiveFalse();
     }
 
     private void Update()
     {
         if (GameManager.Instance.IsGameOver)
         {
-            upImage.enabled    = false;
-            leftImage.enabled  = false;
-            downImage.enabled  = false;
-            rightImage.enabled = false;
-
+            SetActiveFalse();
             return;
         }
 
-        upImage.enabled     = Input.GetKey(playerController.upButton);
-        leftImage.enabled   = Input.GetKey(playerController.leftButton);
-        downImage.enabled   = Input.GetKey(playerController.downButton);
-        rightImage.enabled  = Input.GetKey(playerController.rightButton);
+        upImage.enabled    = Input.GetKey(playerController.upButton);
+        leftImage.enabled  = Input.GetKey(playerController.leftButton);
+        downImage.enabled  = Input.GetKey(playerController.downButton);
+        rightImage.enabled = Input.GetKey(playerController.rightButton);
+
+        attackImage.SetActive(Input.GetKey(playerController.attackButton));
+        debuffImage.SetActive(Input.GetKey(playerController.debuffButton));
+        shieldImage.SetActive(Input.GetKey(playerController.shieldButton));
+        judgementImage.SetActive(Input.GetKey(playerController.judgementButton));
+    }
+
+    private void SetActiveFalse()
+    {
+        upImage.enabled    = false;
+        leftImage.enabled  = false;
+        downImage.enabled  = false;
+        rightImage.enabled = false;
+
+        attackImage.SetActive(false);
+        debuffImage.SetActive(false);
+        shieldImage.SetActive(false);
+        judgementImage.SetActive(false);
     }
 }

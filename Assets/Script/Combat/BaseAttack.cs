@@ -9,7 +9,7 @@ public class BaseAttack : MonoBehaviour
 	public float radius = 0.5f;
 	public float range = 2f;
 
-    public void AttackActivate(string particleName)
+    public virtual void AttackActivate(string particleName)
 	{
         var attackPosition = transform.position + transform.forward * range;
 		var hitColliders = Physics.OverlapSphere(attackPosition, radius, targetLayerMask);
@@ -36,12 +36,5 @@ public class BaseAttack : MonoBehaviour
             attackParticle.OnParticleRelease -= ReleaseAttackParticle;
             attackFxPool.Release(attackFxInstance);
         }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        // Test Code
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + transform.forward * range, radius);
     }
 }

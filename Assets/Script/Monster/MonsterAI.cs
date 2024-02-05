@@ -28,6 +28,9 @@ public class MonsterAI : MonoBehaviour
 
     private Vector3 nextPatrolPosition;
 
+    private float chaseTime;
+    private float refreshDestination = 0.5f;
+
     private float flowTime;
     private float moveSpeed;
 	private float runSpeed;
@@ -42,8 +45,9 @@ public class MonsterAI : MonoBehaviour
         livingEntity = GetComponent<LivingEntity>();
 
         flowTime = 0f;
+        chaseTime = 0f;
 
-		currentState = State.Idle;
+        currentState = State.Idle;
 
         moveSpeed = pathFinder.speed;
         previousMoveSpeed = pathFinder.speed;
@@ -58,9 +62,10 @@ public class MonsterAI : MonoBehaviour
         livingEntity.OnDeath -= OnDeath;
     }
     
-    private void FixedUpdate()
+    private void Update()
 	{
-        flowTime += Time.fixedDeltaTime;
+        flowTime += Time.deltaTime;
+        chaseTime += Time.deltaTime;
 
         var distance = Vector3.Distance(playerRef.transform.position, transform.position);
         switch (currentState)
@@ -77,7 +82,7 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        pathFinder.speed = Mathf.Lerp(pathFinder.speed, moveSpeed, lerpAcceleration * Time.fixedDeltaTime);
+        pathFinder.speed = Mathf.Lerp(pathFinder.speed, moveSpeed, lerpAcceleration * Time.deltaTime);
         monsterAnimator.SetFloat("MoveSpeed", pathFinder.speed);
     }
 
@@ -127,7 +132,12 @@ public class MonsterAI : MonoBehaviour
 	{
 		moveSpeed = runSpeed;
         pathFinder.isStopped = false;
-        pathFinder.destination = playerRef.transform.position;
+
+        if (chaseTime >= refreshDestination)
+        {
+            pathFinder.destination = playerRef.transform.position;
+            chaseTime = 0f;
+        }
 
         if (distance <= attackDistance)
 		{
@@ -150,7 +160,7 @@ public class MonsterAI : MonoBehaviour
         }
 
         var lookRotation = Quaternion.LookRotation((playerRef.transform.position - transform.position).normalized);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.fixedDeltaTime * 5f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
 
         if (flowTime >= attackCooldown)
 		{
