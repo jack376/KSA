@@ -30,17 +30,19 @@ public class LivingEntity : MonoBehaviour, IDamageable
 
     public virtual void TakeDamage(Transform transform, float damage, string particleName)
     {
-        Health -= Mathf.Max(damage - defense, 0);
+        var finalDamage = Mathf.Max(damage - defense, 0);
+
+        Health -= finalDamage;
         hpSlider?.UpdateHP(Health / maxHealth);
 
         var damageTextPool = ObjectPoolManager.Instance.GetPool("DamageText");
 
         var damageTextInstance = damageTextPool.Get();
         damageTextInstance.transform.position = transform.position;
-        damageTextInstance.GetComponent<DamageText>().SetText(damage.ToString());
 
         var damageText = damageTextInstance.GetComponent<DamageText>();
         damageText.OnDamageText += ReleaseDamageText;
+        damageText.SetText(finalDamage.ToString());
 
         void ReleaseDamageText()
         {

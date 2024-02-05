@@ -1,13 +1,16 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 
 public class BaseAttack : MonoBehaviour
 {
     public LayerMask targetLayerMask;
+    public Image cooldownImage;
 
-	public float damage = 10f;
+	public float damage   = 10f;
 	public float cooldown = 1f;
-	public float radius = 0.5f;
-	public float range = 2f;
+	public float radius   = 0.5f;
+	public float range    = 2f;
 
     public virtual void AttackActivate(string particleName)
 	{
@@ -36,5 +39,25 @@ public class BaseAttack : MonoBehaviour
             attackParticle.OnParticleRelease -= ReleaseAttackParticle;
             attackFxPool.Release(attackFxInstance);
         }
+    }
+
+    public void UseSkill()
+    {
+        StartCoroutine(CooldownRoutine(cooldown));
+    }
+
+    private IEnumerator CooldownRoutine(float cooldownDuration)
+    {
+        float elapsedTime = 0f;
+        cooldownImage.fillAmount = 1f;
+
+        while (elapsedTime < cooldownDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            cooldownImage.fillAmount = 1 - (elapsedTime / cooldownDuration);
+            yield return null;
+        }
+
+        cooldownImage.fillAmount = 0f;
     }
 }

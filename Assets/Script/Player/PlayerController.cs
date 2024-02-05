@@ -20,13 +20,17 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody playerRigidbody;
     private Animator playerAnimator;
+    private LivingEntity livingEntity;
 
     private BaseAttack playerAttack;
     private DebuffSkill playerDebuff;
     private JudgementSkill playerJudgement;
     private ShieldSkill playerShield;
 
-    private LivingEntity livingEntity;
+    private float lastAttackTime;
+    private float lastDebuffTime;
+    private float lastJudgementTime;
+    private float lastShieldTime;
 
     private float flowTime;
 
@@ -49,6 +53,12 @@ public class PlayerController : MonoBehaviour
 
         livingEntity = GetComponent<LivingEntity>();
 
+        float currentTime = Time.time;
+        lastAttackTime    = currentTime - playerAttack.cooldown;
+        lastDebuffTime    = currentTime - playerDebuff.cooldown;
+        lastJudgementTime = currentTime - playerJudgement.cooldown;
+        lastShieldTime    = currentTime - playerShield.cooldown;
+
         flowTime = 0f;
 
         previousMoveSpeed = moveSpeed;
@@ -59,11 +69,6 @@ public class PlayerController : MonoBehaviour
         isGetup = false;
 
         livingEntity.OnDeath += OnDeath;
-    }
-
-    private void OnDestroy()
-    {
-        livingEntity.OnDeath -= OnDeath;
     }
 
     private void FixedUpdate()
@@ -111,33 +116,48 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        flowTime += Time.deltaTime;
-        if (flowTime >= playerAttack.cooldown && isAct)
+        float currentTime = Time.time;
+
+        if (livingEntity.Dead)
         {
-            if (Input.GetKey(attackButton))
-            {
-                playerAnimator.SetTrigger("Attack");
-                playerAttack.ShowBeginParticle("Stone slash", transform.position + Vector3.up * 0.75f);
-                OnActStart();
-            }
-            if (Input.GetKey(debuffButton))
-            {
-                playerAnimator.SetTrigger("Debuff");
-                playerDebuff.ShowBeginParticle("Electro slash fix", transform.position + Vector3.up * 0.75f);
-                OnActStart();
-            }
-            if (Input.GetKey(judgementButton))
-            {
-                playerAnimator.SetTrigger("Judgement");
-                playerJudgement.ShowBeginParticle("AoE slash orange", transform.position + Vector3.up * 0.75f);
-                isAct = false;
-            }
-            if (Input.GetKey(shieldButton))
-            {
-                playerAnimator.SetTrigger("Shield");
-                playerShield.ShowBeginParticle("Magic shield blue", transform.position + Vector3.up * 0.75f);
-                OnActStart();
-            }
+            return;
+        }
+
+        if (Input.GetKey(attackButton) && currentTime - lastAttackTime >= playerAttack.cooldown && isAct)
+        {
+            OnActStart();
+            lastAttackTime = currentTime;
+
+            playerAnimator.SetTrigger("Attack");
+            playerAttack.ShowBeginParticle("Stone slash", transform.position + Vector3.up * 0.75f);
+            playerAttack.UseSkill();
+        }
+        if (Input.GetKey(debuffButton) && currentTime - lastDebuffTime >= playerDebuff.cooldown && isAct)
+        {
+            OnActStart();
+            lastDebuffTime = currentTime;
+
+            playerAnimator.SetTrigger("Debuff");
+            playerDebuff.ShowBeginParticle("Electro slash fix", transform.position + Vector3.up * 0.75f);
+            playerDebuff.UseSkill();
+        }
+        if (Input.GetKey(judgementButton) && currentTime - lastJudgementTime >= playerJudgement.cooldown && isAct)
+        {
+            isAct = false;
+            lastJudgementTime = currentTime;
+
+            playerAnimator.SetTrigger("Judgement");
+            playerJudgement.ShowBeginParticle("AoE slash orange", transform.position + Vector3.up * 0.75f);
+            playerJudgement.UseSkill();
+        }
+        if (Input.GetKey(shieldButton) && currentTime - lastShieldTime >= playerShield.cooldown && isAct)
+        {
+            OnActStart();
+            lastShieldTime = currentTime;
+
+            playerAnimator.SetTrigger("Shield");
+            playerShield.ShowBeginParticle("Magic shield blue", transform.position + Vector3.up * 0.75f);
+            playerShield.UseSkill();
         }
     }
 

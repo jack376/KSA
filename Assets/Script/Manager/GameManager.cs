@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour
 	public LivingEntity playerEntity;
 	public LivingEntity monsterEntity;
 
+	public GameObject titlePanel;
+	public GameObject continuePanel;
+
 	private bool isGameOver = false;
 
 	public bool IsGameOver { get => isGameOver; }
@@ -24,17 +27,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
-	private void Start()
+	private void OnEnable()
 	{
-		if (playerEntity != null)
+        titlePanel.gameObject.SetActive(false);
+		continuePanel.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        playerEntity.OnDeath += OnPlayerDeath;
+        monsterEntity.OnDeath += OnMonsterDeath;
+    }
+
+    private void Update()
+	{
+        if (isGameOver)
 		{
-			playerEntity.OnDeath += OnPlayerDeath;
-		}
-		if (monsterEntity != null)
-		{
-			monsterEntity.OnDeath += OnMonsterDeath;
-		}
-	}
+            if (Input.GetKeyDown(KeyCode.R))
+			{
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+        }
+    }
 
 	private void OnPlayerDeath()
 	{
@@ -49,27 +63,12 @@ public class GameManager : MonoBehaviour
 	private void GameOver()
 	{
 		isGameOver = true;
-		Debug.Log("Game Over!");
-	}
+        continuePanel.gameObject.SetActive(true);
+    }
 
 	private void Win()
 	{
 		isGameOver = true;
-		Debug.Log("You Win!");
-	}
-
-	private void OnDestroy()
-	{
-		if (playerEntity != null)
-		{
-			playerEntity.OnDeath -= OnPlayerDeath;
-			playerEntity = null;
-		}
-
-		if (monsterEntity != null)
-		{
-			monsterEntity.OnDeath -= OnMonsterDeath;
-			monsterEntity = null;
-		}
+		titlePanel.gameObject.SetActive(true);
 	}
 }

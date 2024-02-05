@@ -2,11 +2,8 @@ using UnityEngine;
 
 public class DebuffSkill : BaseAttack
 {
-    public float dotDamage = 5f;
     public float dotDuration = 5f;
     public float dotTickInterval = 1f;
-
-    private float flowTime;
 
     public void DebuffActivate(string particleName)
     {
@@ -15,7 +12,7 @@ public class DebuffSkill : BaseAttack
         foreach (var hitCollider in hitColliders)
         {
             var damageable = hitCollider.GetComponent<IDamageable>();
-            damageable?.TakeDotDamage(hitCollider.transform, dotDamage, dotDuration, dotTickInterval, particleName);
+            damageable?.TakeDotDamage(hitCollider.transform, damage, dotDuration, dotTickInterval, particleName);
         }
     }
 

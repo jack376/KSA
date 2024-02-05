@@ -3,20 +3,22 @@ using UnityEngine;
 public class ShieldSkill : BaseAttack
 {
     public float shieldDuration = 3f;
+    public float shieldPoint = 10f;
+
     public ParticleSystem shieldParticle;
 
     private PlayerController playerController;
+    private LivingEntity playerLivingEntity;
     private Animator playerAnimator;
 
     private bool isShieldActive = false;
     private float shieldTimer = 0f;
 
-    private float flowTime;
-
     private void Start()
     {
         playerController = GetComponent<PlayerController>();
         playerAnimator = GetComponent<Animator>();
+        playerLivingEntity = GetComponent<LivingEntity>();
     }
 
     private void Update()
@@ -27,8 +29,10 @@ public class ShieldSkill : BaseAttack
             if (shieldTimer >= shieldDuration)
             {
                 isShieldActive = false;
+
                 playerAnimator.SetBool("IsShield", isShieldActive);
                 shieldParticle.gameObject.SetActive(isShieldActive);
+                playerLivingEntity.defense = 0f;
 
                 playerController.OnActEnd();
             }
@@ -45,7 +49,10 @@ public class ShieldSkill : BaseAttack
         if (!isShieldActive)
         {
             isShieldActive = true;
+
             playerAnimator.SetBool("IsShield", isShieldActive);
+            playerLivingEntity.defense = shieldPoint;
+
             shieldTimer = 0f;
         }
     }

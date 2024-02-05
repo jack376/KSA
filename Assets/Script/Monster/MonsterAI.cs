@@ -11,11 +11,11 @@ public class MonsterAI : MonoBehaviour
 	public GameObject playerRef;
 
 	public float patrolDistance = 10f;
-	public float chaseDistance = 5f;
+	public float chaseDistance  = 5f;
 	public float attackDistance = 2f;
 
 	public float attackCooldown = 1f;
-	public float skillCooldown = 5f;
+	public float skillCooldown  = 5f;
 
     public float idleStateRandomPercent = 0.5f;
     public float runSpeedRate = 2.5f;
@@ -29,7 +29,7 @@ public class MonsterAI : MonoBehaviour
     private Vector3 nextPatrolPosition;
 
     private float chaseTime;
-    private float refreshDestination = 0.5f;
+    private float refreshDestination = 0.25f;
 
     private float flowTime;
     private float moveSpeed;
@@ -205,15 +205,5 @@ public class MonsterAI : MonoBehaviour
         }
 
         pathFinder.SetDestination(nextPatrolPosition);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        // Test Code
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
     }
 }

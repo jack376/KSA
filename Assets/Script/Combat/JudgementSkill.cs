@@ -9,12 +9,12 @@ public class JudgementSkill : BaseAttack
     public ParticleSystem spinParticle;
     public string finishParticleName;
 
+    private PlayerController playerController;
+    private Animator playerAnimator;
+
     private string particleName;
     private float flowTime;
     private bool isSpinning = false;
-
-    private PlayerController playerController;
-    private Animator playerAnimator;
 
     private void Start()
     {
